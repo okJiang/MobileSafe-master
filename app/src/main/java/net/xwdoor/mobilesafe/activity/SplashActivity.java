@@ -106,6 +106,7 @@ public class SplashActivity extends BaseActivity {
                     } else {
 //                        startHomeActivity();
                           showSafeDialog();
+//                        startLoginActivity();
                     }
                 } else {
                     //无更新，停留一段时间，然后进入主界面
@@ -118,6 +119,7 @@ public class SplashActivity extends BaseActivity {
                     }
 //                    startHomeActivity();
                     showSafeDialog();
+//                    startLoginActivity();
                 }
             }
 
@@ -127,6 +129,7 @@ public class SplashActivity extends BaseActivity {
                 Log.e(TAG_LOG, "获取版本信息异常--->" + errorMsg);
 //                startHomeActivity();
                 showSafeDialog();
+//                startLoginActivity();
             }
         });
     }
@@ -136,6 +139,22 @@ public class SplashActivity extends BaseActivity {
      */
     private void startHomeActivity() {
         HomeActivity.startAct(SplashActivity.this);
+        finish();
+    }
+
+    /**
+     * 进入登录界面
+     */
+    private void startLoginActivity() {
+        LoginActivity.startAct(SplashActivity.this);
+        finish();
+    }
+
+    /**
+     * 进入注册界面
+     */
+    private void startSetActivity() {
+        SetActivity.startAct(SplashActivity.this);
         finish();
     }
 
@@ -156,7 +175,8 @@ public class SplashActivity extends BaseActivity {
         builder.setNegativeButton("以后再说", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                startHomeActivity();
+//                startHomeActivity();
+                startLoginActivity();
             }
         });
 
@@ -200,7 +220,7 @@ public class SplashActivity extends BaseActivity {
             public void onFailure(HttpException e, String s) {
                 Toast.makeText(SplashActivity.this, "下载失败", Toast.LENGTH_SHORT).show();
                 Log.i(TAG_LOG, "下载失败--->" + s);
-                startHomeActivity();
+                showSafeDialog();
             }
 
             @Override
@@ -231,7 +251,7 @@ public class SplashActivity extends BaseActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         //安装过程中，用户点击取消按钮
-        startHomeActivity();
+        showSafeDialog();
     }
 
     /**
@@ -296,10 +316,12 @@ public class SplashActivity extends BaseActivity {
         //判断是否存在密码
         if (!TextUtils.isEmpty(password)) {
             //显示输入密码弹窗
-            showInputPasswordDialog();
+//            showInputPasswordDialog();
+            startLoginActivity();
         } else {
             //显示设置密码弹窗
-            showSetPasswordDialog();
+//            showSetPasswordDialog();
+            startSetActivity();
         }
 //        finish();
 
@@ -346,9 +368,6 @@ public class SplashActivity extends BaseActivity {
         dialog.show();
     }
 
-    /**
-     * 设置密码的弹窗
-     */
     private void showSetPasswordDialog() {
         final AlertDialog dialog = new AlertDialog.Builder(this).create();
         View view = View.inflate(this, R.layout.dialog_set_password, null);
@@ -386,4 +405,6 @@ public class SplashActivity extends BaseActivity {
         dialog.setView(view, 0, 0, 0, 0);
         dialog.show();
     }
+
+
 }

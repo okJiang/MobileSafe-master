@@ -2,21 +2,27 @@ package net.xwdoor.mobilesafe.service;
 
 import android.app.Service;
 import android.content.Intent;
+import android.location.Address;
 import android.location.Criteria;
+import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.telephony.SmsManager;
+import android.widget.Toast;
 
 import net.xwdoor.mobilesafe.base.BaseActivity;
 import net.xwdoor.mobilesafe.utils.PrefUtils;
+
+import java.util.List;
 
 public class LocationService extends Service {
 
     private LocationManager mLM;
     private MyLocationListener mListener;
+    private Geocoder geocoder;
 
     public LocationService() {
     }
@@ -32,6 +38,7 @@ public class LocationService extends Service {
 
         mLM = (LocationManager) getSystemService(LOCATION_SERVICE);
         mListener = new MyLocationListener();
+        geocoder = new Geocoder(this);
 
         Criteria criteria = new Criteria();
         criteria.setAccuracy(Criteria.ACCURACY_FINE);//获取良好精度
@@ -54,10 +61,28 @@ public class LocationService extends Service {
         public void onLocationChanged(Location location) {
             String jLongitude = "j: "+location.getLongitude();//经度
             String wLatitude = "w: "+location.getLatitude();//纬度
+            List places = null;
+
+
+
+            try {
+                places = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 5);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            String placename = "";
+
+            if(places != null && places.size() > 0) {
+                for (int i = 0; i < places.size(); i ++) {
+                    Address address = (Address)places.get(i);
+                    placename += address.getAddressLine(0) + address.getAddressLine(1) + address.getAddressLine(2) + "/n";
+                }
+            }
 
             String phone = PrefUtils.getString(BaseActivity.PREF_PHONE_NUMBER,"",getApplicationContext());//获取安全号码
             SmsManager smsManager = SmsManager.getDefault();
-            smsManager.sendTextMessage(phone,null,"Location-->"+jLongitude+";"+wLatitude,null,null);
+            smsManager.sendTextMessage(phone,null,"Location-->"+jLongitude+";"+wLatitude + "/n" + placename,null,null);
 
             stopSelf();//停止服务（service自杀的方法）
         }
